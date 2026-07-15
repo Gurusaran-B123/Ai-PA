@@ -8,7 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Noto+Sans+Tamil:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#12141c;
+    --bg:#eff0f1;
     --panel:#1b1e2b;
     --panel-hi:#232739;
     --bronze:#c08552;
@@ -21,7 +21,7 @@
   *{box-sizing:border-box;}
   body{
     margin:0;
-    background:radial-gradient(circle at 50% -10%, #1c2033 0%, #12141c 55%);
+    background:linear-gradient(360deg, #1c203348, #eeeef0 );
     color:var(--text);
     font-family:'Space Grotesk', sans-serif;
     min-height:100vh;
@@ -40,10 +40,11 @@
     flex-wrap:wrap;
   }
   header h1{
-    font-size:22px;
+    font: size 1.5rem;
     margin:0;
     font-weight:600;
     letter-spacing:0.2px;
+    color: darkcyan;
   }
   header h1 .eyebrow{
     display:block;
@@ -75,7 +76,7 @@
 
   /* Voice orb section */
   .orb-section{
-    background:var(--panel);
+    background:rgba(245, 245, 245, 0.733);
     border:1px solid #2a2e42;
     border-radius:20px;
     padding:36px 24px;
@@ -129,7 +130,7 @@
 
   /* Chat log */
   .chat-panel{
-    background:var(--panel);
+    background:rgba(245, 245, 245, 0.726);
     border:1px solid #2a2e42;
     border-radius:20px;
     padding:18px;
@@ -315,7 +316,7 @@
     gap:8px;
     background:var(--panel);
     border:1px solid #2a2e42;
-    border-radius:14px;
+    border-radius:10px 0px 10px 0px ;
     padding:5px;
   }
   .mode-tab{
@@ -371,7 +372,7 @@
 <body>
 
 <header>
-  <h1><span class="eyebrow">Your Personal Assistant</span>Tessa</h1>
+  <h1><span class="eyebrow">Guru, Personal Assistant</span>Tessa</h1>
   <div class="status-pill" id="statusPill"><span class="status-dot"></span><span id="statusText">idle</span></div>
 </header>
 
