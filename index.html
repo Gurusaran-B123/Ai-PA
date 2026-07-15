@@ -395,17 +395,18 @@ async function askPA(userText){
   conversation.push({ role: 'user', content: userText });
   setStatus('live');
   try {
-    const response = await fetch("https://api.anthropic.com/v1/messages", {
+    const response = await fetch("/api/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        model: "claude-sonnet-4-6",
-        max_tokens: 1000,
         system: SYSTEM_PROMPT,
         messages: conversation
       })
     });
     const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.error || 'Server error');
+    }
     const textBlocks = (data.content || []).filter(b => b.type === 'text').map(b => b.text);
     const reply = textBlocks.join('\n').trim() || "Sorry Guru, oru sinna issue vanthuchu. Marupadi solluங்க?";
     conversation.push({ role: 'assistant', content: reply });
