@@ -306,6 +306,66 @@
   @media (prefers-reduced-motion: reduce){
     .ring, .orb-wrap.speaking .orb{ animation:none !important; }
   }
+
+  /* Top mode tabs */
+  .mode-tabs{
+    max-width:920px;
+    margin:0 auto 20px;
+    display:flex;
+    gap:8px;
+    background:var(--panel);
+    border:1px solid #2a2e42;
+    border-radius:14px;
+    padding:5px;
+  }
+  .mode-tab{
+    flex:1;
+    background:transparent;
+    border:none;
+    color:var(--muted);
+    font-family:inherit;
+    font-size:14px;
+    font-weight:600;
+    padding:11px 14px;
+    border-radius:10px;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    transition:background 0.15s ease, color 0.15s ease;
+  }
+  .mode-tab svg{ width:16px; height:16px; }
+  .mode-tab.active{
+    background:var(--bronze);
+    color:#1a120b;
+  }
+  .mode-tab:not(.active):hover{ background:var(--panel-hi); color:var(--text); }
+
+  .view-section{ display:none; }
+  .view-section.visible{ display:flex; }
+  .chat-panel.view-section.visible{ display:block; }
+
+  /* Mute button inside orb section */
+  .mute-btn{
+    position:absolute;
+    top:14px;
+    right:14px;
+    width:34px;
+    height:34px;
+    border-radius:50%;
+    background:var(--panel-hi);
+    border:1px solid #2c3044;
+    color:var(--muted);
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transition:background 0.15s ease, color 0.15s ease;
+  }
+  .mute-btn:hover{ background:#2a2e42; color:var(--text); }
+  .mute-btn.muted{ color:var(--danger); border-color:var(--danger); }
+  .mute-btn svg{ width:16px; height:16px; }
 </style>
 </head>
 <body>
@@ -315,8 +375,25 @@
   <div class="status-pill" id="statusPill"><span class="status-dot"></span><span id="statusText">idle</span></div>
 </header>
 
+<div class="mode-tabs">
+  <button class="mode-tab active" id="tabVoice">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/></svg>
+    Voice Assistant
+  </button>
+  <button class="mode-tab" id="tabConvo">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+    Conversation
+  </button>
+</div>
+
 <main>
-  <section class="orb-section">
+  <section class="orb-section view-section visible" id="viewVoice">
+    <button class="mute-btn" id="muteBtn" aria-label="Mute Tessa's voice">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <path d="M11 5 6 9H2v6h4l5 4V5z"/>
+        <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/>
+      </svg>
+    </button>
     <div class="orb-wrap" id="orbWrap">
       <div class="ring"></div>
       <div class="ring"></div>
@@ -333,13 +410,13 @@
     <div class="hint">Chrome browser recommended for voice recognition</div>
   </section>
 
-  <section class="chat-panel">
+  <section class="chat-panel view-section" id="viewConvo">
     <h2>Conversation</h2>
     <div class="chat-log" id="chatLog">
       <div class="bubble system">Tessa is here. Ask about a project, drop a live link to discuss, or just talk.</div>
     </div>
     <div class="chat-input-row">
-      <input type="text" id="textInput" placeholder="Type here (Tanglish is fine)..." />
+      <input type="text" id="textInput" placeholder="Type here..." />
       <button id="sendBtn">Send</button>
     </div>
   </section>
@@ -359,6 +436,38 @@
 </main>
 
 <script>
+// ---------- Mode tabs (Voice Assistant / Conversation) ----------
+const tabVoice = document.getElementById('tabVoice');
+const tabConvo = document.getElementById('tabConvo');
+const viewVoice = document.getElementById('viewVoice');
+const viewConvo = document.getElementById('viewConvo');
+
+function showView(view){
+  if (view === 'voice') {
+    viewVoice.classList.add('visible');
+    viewConvo.classList.remove('visible');
+    tabVoice.classList.add('active');
+    tabConvo.classList.remove('active');
+  } else {
+    viewConvo.classList.add('visible');
+    viewVoice.classList.remove('visible');
+    tabConvo.classList.add('active');
+    tabVoice.classList.remove('active');
+  }
+}
+tabVoice.addEventListener('click', () => showView('voice'));
+tabConvo.addEventListener('click', () => showView('conversation'));
+
+// ---------- Mute button ----------
+const muteBtn = document.getElementById('muteBtn');
+let isMuted = false;
+muteBtn.addEventListener('click', () => {
+  isMuted = !isMuted;
+  muteBtn.classList.toggle('muted', isMuted);
+  muteBtn.setAttribute('aria-label', isMuted ? "Unmute Tessa's voice" : "Mute Tessa's voice");
+  if (isMuted && window.speechSynthesis) window.speechSynthesis.cancel();
+});
+
 // ---------- State ----------
 const chatLog = document.getElementById('chatLog');
 const liveTranscript = document.getElementById('liveTranscript');
@@ -508,6 +617,7 @@ function pickFemaleVoice(voices){
 }
 
 function speak(text){
+  if (isMuted) return;
   if (!window.speechSynthesis) return;
   window.speechSynthesis.cancel();
   const utter = new SpeechSynthesisUtterance(text);
