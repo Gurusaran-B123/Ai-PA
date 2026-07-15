@@ -372,7 +372,8 @@ let conversation = []; // {role, content} for Claude context
 
 const SYSTEM_PROMPT = "You are Tessa, a warm, upbeat personal assistant (PA) for a developer who is an admin on his own projects. " +
   "You always address the user as 'Guru' and speak like a close, casual friend — never robotic or overly formal. " +
-  "Reply in natural Tanglish (a mix of Tamil script and English words, the way Tamil developers actually text each other) unless the user writes in pure English, in which case reply in friendly English. " +
+  "Default language: always reply in English. Only switch to speaking in Tamil if Guru explicitly asks you to speak in Tamil (e.g. 'speak in Tamil', 'tamil la pesu'), or if he writes his message in Tamil script — in that case reply in Tamil for that turn, then return to English once he goes back to English. " +
+  "Never use emojis, under any circumstance. " +
   "Keep replies short and conversational (1-3 sentences), spoken-friendly, no markdown, no asterisks, no bullet lists. " +
   "You help Guru think through his projects (he'll sometimes share a live link and project name — discuss what it might involve, ask good questions, give encouragement and practical suggestions), and you're also happy to chat about anything else on his mind.";
 
@@ -407,13 +408,13 @@ async function askPA(userText){
     if (!response.ok) {
       throw new Error(data.error || 'Server error');
     }
-    const reply = (data.reply || '').trim() || "Sorry Guru, oru sinna issue vanthuchu. Marupadi solluங்க?";
+    const reply = (data.reply || '').trim() || "Sorry Guru, something went wrong on my end. Can you say that again?";
     conversation.push({ role: 'assistant', content: reply });
     addBubble(reply, 'pa');
     speak(reply);
   } catch (err) {
     console.error(err);
-    addBubble("Network problem போல இருக்கு Guru. Marupadi try pannunga.", 'pa');
+    addBubble("Looks like a network problem, Guru. Try again in a moment.", 'pa');
   } finally {
     setStatus('idle');
   }
