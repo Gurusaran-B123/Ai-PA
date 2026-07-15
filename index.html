@@ -407,8 +407,7 @@ async function askPA(userText){
     if (!response.ok) {
       throw new Error(data.error || 'Server error');
     }
-    const textBlocks = (data.content || []).filter(b => b.type === 'text').map(b => b.text);
-    const reply = textBlocks.join('\n').trim() || "Sorry Guru, oru sinna issue vanthuchu. Marupadi solluங்க?";
+    const reply = (data.reply || '').trim() || "Sorry Guru, oru sinna issue vanthuchu. Marupadi solluங்க?";
     conversation.push({ role: 'assistant', content: reply });
     addBubble(reply, 'pa');
     speak(reply);
