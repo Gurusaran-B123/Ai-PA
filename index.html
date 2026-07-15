@@ -329,7 +329,7 @@
         </svg>
       </button>
     </div>
-    <div class="transcript-live" id="liveTranscript">Tap the mic and talk to Tessa — Tamil or English, whatever's comfortable</div>
+    <div class="transcript-live" id="liveTranscript">Tap the mic and talk to Tessa in English</div>
     <div class="hint">Chrome browser recommended for voice recognition</div>
   </section>
 
@@ -441,7 +441,7 @@ const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
 
 if (SR) {
   recognition = new SR();
-  recognition.lang = 'ta-IN';
+  recognition.lang = 'en-IN';
   recognition.interimResults = true;
   recognition.continuous = false;
 
@@ -491,21 +491,20 @@ orbBtn.addEventListener('click', () => {
   }
 });
 
-// ---------- Voice: Speech Synthesis (female voice) ----------
+// ---------- Voice: Speech Synthesis (female, English voice) ----------
 function pickFemaleVoice(voices){
-  // Prefer a Tamil female voice, then any female-sounding voice, then any Tamil voice, then default.
+  // Prefer an Indian-English female voice, then any English female voice, then any English voice, then default.
   const femaleHints = ['female', 'woman', 'zira', 'samantha', 'victoria', 'susan', 'karen', 'moira', 'tessa', 'veena', 'lekha', 'raveena'];
   const isFemale = (v) => femaleHints.some(h => v.name.toLowerCase().includes(h));
+  const isEnglish = (v) => v.lang && v.lang.toLowerCase().startsWith('en');
 
-  let v = voices.find(v => v.lang && v.lang.toLowerCase().startsWith('ta') && isFemale(v));
+  let v = voices.find(v => v.lang && v.lang.toLowerCase().startsWith('en-in') && isFemale(v));
   if (v) return v;
-  v = voices.find(v => isFemale(v) && v.lang && v.lang.toLowerCase().startsWith('en-in'));
+  v = voices.find(v => isEnglish(v) && isFemale(v));
   if (v) return v;
-  v = voices.find(v => isFemale(v));
+  v = voices.find(v => v.lang && v.lang.toLowerCase().startsWith('en-in'));
   if (v) return v;
-  v = voices.find(v => v.lang && v.lang.toLowerCase().startsWith('ta'));
-  if (v) return v;
-  return voices.find(v => v.lang && v.lang.toLowerCase().startsWith('en-in')) || voices[0] || null;
+  return voices.find(v => isEnglish(v)) || voices[0] || null;
 }
 
 function speak(text){
