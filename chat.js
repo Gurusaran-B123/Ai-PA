@@ -1,5 +1,7 @@
 // Vercel serverless function: /api/chat
-// Keeps the Anthropic API key on the server, forwards chat requests from the browser.
+// Keeps the OpenRouter API key on the server, forwards chat requests from the browser.
+// Uses OpenRouter's free-model auto-router so the app keeps working even as
+// specific free models rotate in/out on their platform.
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -7,9 +9,9 @@ export default async function handler(req, res) {
     return;
   }
 
-  const apiKey = process.env.ANTHROPIC_API_KEY;
+  const apiKey = process.env.OPENROUTER_API_KEY;
   if (!apiKey) {
-    res.status(500).json({ error: 'Server is missing ANTHROPIC_API_KEY. Set it in Vercel project settings.' });
+    res.status(500).json({ error: 'Server is missing OPENROUTER_API_KEY. Set it in Vercel project settings.' });
     return;
   }
 
@@ -19,32 +21,37 @@ export default async function handler(req, res) {
     return;
   }
 
+  // OpenRouter uses the OpenAI-compatible format: system prompt goes in the messages array.
+  const chatMessages = system ? [{ role: 'system', content: system }, ...messages] : messages;
+
   try {
-    const anthropicRes = await fetch('https://api.anthropic.com/v1/messages', {
+    const orRes = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01'
+        'Authorization': `Bearer ${apiKey}`,
+        // OpenRouter asks for these for their leaderboard/analytics; harmless to include.
+        'HTTP-Referer': 'https://tessa-pa.vercel.app',
+        'X-Title': 'Tessa PA'
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
+        model: 'openrouter/free', // auto-routes to an available free model
         max_tokens: 1000,
-        system: system || undefined,
-        messages
+        messages: chatMessages
       })
     });
 
-    const data = await anthropicRes.json();
+    const data = await orRes.json();
 
-    if (!anthropicRes.ok) {
-      res.status(anthropicRes.status).json({ error: data.error?.message || 'Anthropic API error', details: data });
+    if (!orRes.ok) {
+      res.status(orRes.status).json({ error: data.error?.message || 'OpenRouter API error', details: data });
       return;
     }
 
-    res.status(200).json(data);
+    const reply = data.choices?.[0]?.message?.content || '';
+    res.status(200).json({ reply, raw: data });
   } catch (err) {
     console.error('Chat proxy error:', err);
-    res.status(500).json({ error: 'Failed to reach Anthropic API.' });
+    res.status(500).json({ error: 'Failed to reach OpenRouter API.' });
   }
 }
